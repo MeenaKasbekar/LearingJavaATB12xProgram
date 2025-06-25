@@ -1,0 +1,12 @@
+package Tasks.Basic_For_loop;
+
+public class Task3 {
+    //Print "Hello" 5 times
+
+    public static void main(String[] args) {
+
+        for(int i=1; i<=5; i++){
+            System.out.println("Hello");
+        }
+    }
+}
