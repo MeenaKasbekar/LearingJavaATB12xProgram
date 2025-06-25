@@ -10,7 +10,7 @@ public class Grade_System {
         int marks= scanner.nextInt();
 
         if(marks >0 && marks<=100){
-            if(marks>90 && marks<100){
+            if(marks>90 && marks<=100){
                 System.out.println("A+");
             } else if (marks>80 && marks<89) {
                 System.out.println("A");
