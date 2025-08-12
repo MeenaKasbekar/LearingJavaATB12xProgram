@@ -1,51 +1,35 @@
-Test Cases for DataFlex ISBN Validation Web Service
+ **DataFlex Web Service – IsValidISBN10 Test Cases**
 
+| Scenario TID | Test Data                                                      | Test Case Description                        | Precondition | Test Steps                              | Expected Result                                     | Priority | Is Automated |
+| ------------ | -------------------------------------------------------------- | -------------------------------------------- | ------------ | --------------------------------------- | --------------------------------------------------- | -------- | ------------ |
+| TC001        | `0306406152`                                                   | Valid ISBN-10 number                         | API is live  | Send request via SOAP 1.1               | Returns `true`                                      | High     | Yes          |
+| TC002        | `123456789X`                                                   | Valid ISBN-10 with 'X' checksum              | API is live  | Send request via SOAP 1.2               | Returns `true`                                      | High     | Yes          |
+| TC003        | `0-306-40615-2`                                                | Valid ISBN-10 with hyphens                   | API is live  | Send request via JSON                   | Returns `true` (if hyphen support enabled) or error | Medium   | Yes          |
+| TC004        | `1234567890`                                                   | Invalid checksum ISBN                        | API is live  | Send request via SOAP 1.1               | Returns `false`                                     | High     | Yes          |
+| TC005        | `030640615`                                                    | Only 9 digits                                | API is live  | Send request via JSON                   | Returns `false`                                     | Medium   | Yes          |
+| TC006        | `03064061522`                                                  | More than 10 digits                          | API is live  | Send request via SOAP 1.1               | Returns `false`                                     | Medium   | Yes          |
+| TC007        | `abcdefghij`                                                   | Alphabetic characters only                   | API is live  | Send request via JSON                   | Returns `false`                                     | High     | Yes          |
+| TC008        | `03@640!52#`                                                   | Special characters in ISBN                   | API is live  | Send request via SOAP 1.2               | Returns `false`                                     | Medium   | Yes          |
+| TC009        | `一二三四五六七八九十`                                                   | Chinese characters                           | API is live  | Send request via JSON                   | Returns `false` or validation error                 | Low      | No           |
+| TC010        | `١٢٣٤٥٦٧٨٩٠`                                                   | Arabic numerals                              | API is live  | Send request via SOAP 1.1               | Returns `false`                                     | Low      | No           |
+| TC011        | \`\` (empty)                                                   | Empty string                                 | API is live  | Send request via JSON                   | Returns error or `false`                            | High     | Yes          |
+| TC012        | `null`                                                         | Null value in payload                        | API is live  | Send request via SOAP 1.2               | Returns error                                       | High     | Yes          |
+| TC013        | `    0306406152    `                                           | Leading/trailing spaces                      | API is live  | Send request via JSON                   | Returns `true` if trimmed else `false`              | Medium   | Yes          |
+| TC014        | `0000000000`                                                   | All zeros                                    | API is live  | Send request via SOAP 1.1               | Returns `false`                                     | Low      | Yes          |
+| TC015        | `!@#$%^&*()`                                                   | Only special characters                      | API is live  | Send request via JSON                   | Returns error or `false`                            | Low      | No           |
+| TC016        | `030640615\n2`                                                 | Embedded newline in ISBN                     | API is live  | Send request via SOAP 1.2               | Returns `false` or error                            | Low      | No           |
+| TC017        | `123456789x`                                                   | Lowercase 'x' instead of uppercase 'X'       | API is live  | Send request via JSON                   | Returns `true` if case-insensitive else `false`     | Medium   | Yes          |
+| TC018        | `0306406152`                                                   | Valid ISBN sent as integer type (not string) | API is live  | Send request via JSON with numeric type | Returns `true` or error depending on API validation | Medium   | Yes          |
+| TC019        | `"DROP TABLE USERS;"`                                          | SQL injection attempt                        | API is live  | Send request via JSON                   | Returns error, not executed as SQL                  | High     | No           |
+| TC020        | `"<script>alert('test')</script>"`                             | XSS injection attempt                        | API is live  | Send request via JSON                   | Returns error or `false`, not executed              | High     | No           |
+| TC021        | `9999999999`                                                   | Max digit value for ISBN-10                  | API is live  | Send request via SOAP 1.1               | Returns `false`                                     | Medium   | Yes          |
+| TC022        | `-306406152`                                                   | ISBN starting with minus sign                | API is live  | Send request via JSON                   | Returns `false`                                     | Low      | Yes          |
+| TC023        | `03 064 061 52`                                                | ISBN with spaces between digits              | API is live  | Send request via JSON                   | Returns `true` if space-tolerant else `false`       | Medium   | Yes          |
+| TC024        | `[0306406152]`                                                 | ISBN in square brackets                      | API is live  | Send request via SOAP 1.2               | Returns `false`                                     | Low      | Yes          |
+| TC025        | Very long string (500+ chars)                                  | Oversized payload                            | API is live  | Send request via JSON                   | Returns error or validation failure                 | High     | No           |
+| TC026        | Binary data in ISBN field                                      | Non-text payload                             | API is live  | Send request via JSON                   | Returns error                                       | Low      | No           |
+| TC027        | JSON payload missing `sISBN` field                             | Missing required parameter                   | API is live  | Send request via JSON                   | Returns error message                               | High     | Yes          |
+| TC028        | JSON payload with extra fields                                 | Extra parameters in request                  | API is live  | Send request via JSON                   | Returns valid response ignoring extras              | Low      | Yes          |
+| TC029        | Valid ISBN but sent with wrong content type (e.g., text/plain) | Content-Type mismatch                        | API is live  | Send request with wrong header          | Returns error                                       | High     | No           |
+| TC030        | Valid ISBN but malformed JSON                                  | Invalid request format                       | API is live  | Send broken JSON body                   | Returns parsing error                               | High     | No           |
 
-
-|   Test Case ID                      |   Scenario                 |   Description                                      |   Preconditions   |  Steps                         |   Input Data         |   Expected Result                  |
-| ----------------------------------- | -------------------------- | -------------------------------------------------- | ----------------- | ------------------------------ | -------------------- | ---------------------------------- |
-
- **Positive Scenarios**    
-| TC001                               | Valid ISBN                 | Verify service returns TRUE for correct ISBN-10    | Service running   | Send request                   | `0471958697`         | `true`                             |
-| TC002                               | Valid ISBN                 | Verify service returns TRUE for another valid ISBN | Service running   | Send request                   | `0306406152`         | `true`                             |
-| TC003                               | Valid ISBN with X          | Verify service returns TRUE when ISBN ends with X  | Service running   | Send request                   | `123456789X`         | `true`                             |
-
- **Negative Scenarios** 
-| TC004                               | Invalid ISBN (checksum)    | Wrong checksum should return FALSE                 | Service running   | Send request                   | `0471958699`         | `false`                            |
-| TC005                               | Invalid ISBN (digits only) | Invalid digits should return FALSE                 | Service running   | Send request                   | `1234567890`         | `false`                            |
-
-
- **Edge Cases: Length & Characters**
-| TC006                               | Too Short ISBN             | ISBN < 10 digits should return FALSE               | Service running   | Send request                   | `12345678`           | `false`                            |
-| TC007                               | Too Long ISBN              | ISBN > 10 digits should return FALSE               | Service running   | Send request                   | `12345678901`        | `false`                            |
-| TC008                               | Non-Numeric ISBN           | Alphabet-only should return FALSE                  | Service running   | Send request                   | `ABCDEFGHIJ`         | `false`                            |
-| TC009                               | Mixed Characters           | Mixed letters & digits should return FALSE         | Service running   | Send request                   | `12345ABCDE`         | `false`                            |
-| TC010                               | Empty String               | Empty input should return FALSE                    | Service running   | Send request                   | \`\`                 | `false`                            |
-| TC011                               | Spaces Only                | Spaces-only input should return FALSE              | Service running   | Send request                   | `          `         | `false`                            |
-| TC012                               | Special Characters         | Special characters should return FALSE             | Service running   | Send request                   | `!@#$%^&*()`         | `false`                            |
-
-
- **Boundary & Format**                                      
-| TC013                               | Leading/Trailing Spaces    | Should trim spaces and validate correctly          | Service running   | Send request                   | `0471958697`         | `true`                             |
-| TC014                               | Lowercase x                | Lowercase `x` at end should return TRUE            | Service running   | Send request                   | `123456789x`         | `true`                             |
-| TC015                               | Hyphenated ISBN            | Hyphenated ISBN should return FALSE                | Service running   | Send request                   | `0-471-95869-7`      | `false`                            |
-| TC016                               | Null Value                 | Null input should return FALSE                     | Service running   | Send request                   | `null`               | `false`                            |
-
-
-**Performance / Stress**  
-| TC017                               | Large String               | Handle 1000-digit input gracefully                 | Service running   | Send request                   | 1000-digit string    | `false`                            |
-| TC018                               | Rapid Repeated Requests    | Stability under multiple quick calls               | Service running   | Send 100 requests quickly      | Multiple valid ISBNs | All responses correct, no failures |
-
-
-**Protocol Specific**
-| TC019                               | SOAP 1.1 Request           | Verify response using SOAP 1.1                     | Service running   | Send SOAP 1.1 request          | `0471958697`         | `true`                             |
-| TC020                               | SOAP 1.2 Request           | Verify response using SOAP 1.2                     | Service running   | Send SOAP 1.2 request          | `0471958697`         | `true`                             |
-| TC021                               | JSON Request               | Verify response using JSON format                  | Service running   | Send JSON request              | `0471958697`         | `true`                             |
-| TC022                               | Invalid Content-Type       | Wrong content-type should return error             | Service running   | Send request with `text/plain` | `0471958697`         | HTTP 415 Unsupported Media Type    |
-
-
-**Invalid HTTP Methods** 
-| TC023                               | GET Method                 | Using GET should return error                      | Service running   | Send GET request               | `0471958697`         | HTTP 405 Method Not Allowed        |
-| TC024                               | PUT Method                 | Using PUT should return error                      | Service running   | Send PUT request               | `0471958697`         | HTTP 405 Method Not Allowed        |
-
----
