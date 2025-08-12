@@ -1,0 +1,171 @@
+Test Plan – Restful Booker API
+
+## **1. Objective**
+
+To verify that all endpoints of the **Restful Booker API** function as expected, including authentication, booking CRUD operations, and health checks. The plan ensures the API meets functional requirements, is secure, performant, and handles both valid and invalid requests appropriately.
+
+---
+
+## **2. Scope**
+
+* **In Scope**:
+
+  * Functional validation of all endpoints (`/auth`, `/booking`, `/ping`)
+  * Positive and negative test cases
+  * Data validation (request/response formats, field constraints)
+  * Authentication and authorization checks
+  * Response codes and messages
+  * XML & JSON format testing
+  * Performance testing for high load scenarios
+
+* **Out of Scope**:
+
+  * UI testing
+  * Database backend validation (black-box only)
+  * API deployment process
+
+---
+
+## **3. Test Items**
+
+| Endpoint       | Method | Purpose                                          |
+| -------------- | ------ | ------------------------------------------------ |
+| `/auth`        | POST   | Create auth token                                |
+| `/booking`     | GET    | Retrieve all booking IDs (with optional filters) |
+| `/booking/:id` | GET    | Retrieve booking details by ID                   |
+| `/booking`     | POST   | Create new booking                               |
+| `/booking/:id` | PUT    | Update booking                                   |
+| `/booking/:id` | PATCH  | Partially update booking                         |
+| `/booking/:id` | DELETE | Delete booking                                   |
+| `/ping`        | GET    | Health check                                     |
+
+---
+
+## **4. Test Approach**
+
+### **4.1 Functional Testing**
+
+* **Positive Scenarios**
+
+  * Create token with valid credentials
+  * Create booking with valid payload
+  * Retrieve booking by valid ID
+  * Update and partially update booking with valid token
+  * Delete booking with valid token
+  * Retrieve booking list with and without filters
+  * XML & JSON request/response validation
+
+* **Negative Scenarios**
+
+  * Invalid credentials for token creation
+  * Missing or malformed fields in booking creation
+  * Invalid booking ID
+  * Unauthorized PUT, PATCH, DELETE requests
+  * Invalid date formats
+  * Unsupported media type (`Content-Type` not JSON/XML)
+
+---
+
+### **4.2 Non-Functional Testing**
+
+* **Performance Testing**
+
+  * Response time under normal load (e.g., ≤ 500ms)
+  * Stress testing with high concurrent requests
+* **Security Testing**
+
+  * Token expiry simulation (if supported)
+  * Injection attacks (SQLi, XSS in text fields)
+  * Access without authentication for restricted endpoints
+* **Compatibility Testing**
+
+  * JSON & XML payload handling
+  * API behavior in different browsers/tools (Postman, cURL, automation scripts)
+
+---
+
+## **5. Test Cases Overview**
+
+| ID   | Endpoint       | Method | Test Scenario           | Expected Result                       |
+| ---- | -------------- | ------ | ----------------------- | ------------------------------------- |
+| TC01 | `/auth`        | POST   | Valid credentials       | `200 OK` + token returned             |
+| TC02 | `/auth`        | POST   | Invalid credentials     | `200 OK` but no token / error message |
+| TC03 | `/booking`     | GET    | Retrieve all bookings   | List of IDs returned                  |
+| TC04 | `/booking`     | GET    | Filter by firstname     | Only matching bookings returned       |
+| TC05 | `/booking/:id` | GET    | Valid ID                | Booking details returned              |
+| TC06 | `/booking/:id` | GET    | Invalid ID              | `404 Not Found`                       |
+| TC07 | `/booking`     | POST   | Valid payload           | `200 OK` + booking ID                 |
+| TC08 | `/booking`     | POST   | Missing fields          | `400 Bad Request`                     |
+| TC09 | `/booking/:id` | PUT    | Valid update with token | Updated booking returned              |
+| TC10 | `/booking/:id` | PUT    | Without token           | `403 Forbidden`                       |
+| TC11 | `/booking/:id` | PATCH  | Partial update          | Updated fields reflected              |
+| TC12 | `/booking/:id` | DELETE | Valid delete with token | `201 Created` / `204 No Content`      |
+| TC13 | `/ping`        | GET    | API health check        | `201 Created`                         |
+
+---
+
+## **6. Test Data**
+
+* **Auth Credentials**
+
+  * Valid: `admin` / `password123`
+  * Invalid: `admin` / `wrongpass`
+* **Booking Data**
+
+  ```json
+  {
+    "firstname": "John",
+    "lastname": "Doe",
+    "totalprice": 150,
+    "depositpaid": true,
+    "bookingdates": {
+      "checkin": "2025-08-15",
+      "checkout": "2025-08-20"
+    },
+    "additionalneeds": "Breakfast"
+  }
+  ```
+
+---
+
+## **7. Entry Criteria**
+
+* API endpoints deployed and accessible
+* Test environment configured
+* Postman collection or automation framework ready
+
+---
+
+## **8. Exit Criteria**
+
+* All planned test cases executed
+* All critical & high defects resolved
+* Regression testing passed
+
+---
+
+## **9. Tools**
+
+* Postman
+* Newman (for CI/CD automation)
+* JMeter / k6 (for performance tests)
+* REST Assured or Cypress (for automated functional tests)
+
+---
+
+## **10. Risks**
+
+* API downtime during testing
+* Rate limiting or throttling during load testing
+* Changes in API contract without notice
+
+---
+
+## **11. Deliverables**
+
+* Test Plan (this document)
+* Test Case Document
+* Postman Collection
+* Test Execution Report
+* Defect Log
+
